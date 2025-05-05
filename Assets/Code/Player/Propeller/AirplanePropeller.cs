@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Airplane.Physics
+namespace Airplane.PlanePhysics
 {
     public class AirplanePropeller : MonoBehaviour
     {

@@ -3,7 +3,27 @@ guid: e7ab53cde72da3441a6b084a3a14e949
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: F-15E-airframe
+    second: {fileID: 2100000, guid: 75268f5e5a332b24c92f58a31b59825c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: F-15E-hud
+    second: {fileID: 2100000, guid: d7587fe0d778b7b49a1bfd7fbdabc6fb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: F-15E-landingLights
+    second: {fileID: 2100000, guid: 7d905da9a226f514f8818b8e3e013a45, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Glass
+    second: {fileID: 2100000, guid: 4351166b8d291f94599b189cb1d57221, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -16,8 +36,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 

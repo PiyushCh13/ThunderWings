@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Airplane.Physics
+namespace Airplane.PlanePhysics
 {
     public class AirplaneWheels : MonoBehaviour
     {
@@ -48,7 +48,7 @@ namespace Airplane.Physics
             }
         }
 
-        public void HandleWheel(AirplaneBaseInputController input) 
+        public void HandleWheel(AirplaneInputController input) 
         {
             if (wheelCollider) 
             {

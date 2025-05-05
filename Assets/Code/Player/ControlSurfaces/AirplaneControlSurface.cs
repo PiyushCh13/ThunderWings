@@ -27,13 +27,15 @@ namespace Airplane.ControlSurfaces
         public Transform controlSurfaceGraphic;
         public float smoothSpeed;
 
+        public PlayerAudioHandler playerAudioHandler;
+
         #endregion
 
         #region BuitlInMethods
 
         void Start()
         {
-
+             playerAudioHandler = GetComponentInParent<PlayerAudioHandler>();
         }
 
         void Update()
@@ -49,17 +51,24 @@ namespace Airplane.ControlSurfaces
 
         #region CustomMethods
 
-        public void HandleControlSurface(AirplaneBaseInputController input)
+        public void HandleControlSurface(AirplaneInputController input)
         {
+            if(playerAudioHandler == null)
+            {
+                playerAudioHandler = GetComponentInParent<PlayerAudioHandler>();
+            }
+
             float inputValue = 0;
 
             switch (type)
             {
                 case ControlSurface.Rudder:
                     inputValue = input.Yaw;
+                    playerAudioHandler.PlayRudderSound(inputValue);
                     break;
                 case ControlSurface.Elevator:
                     inputValue = input.Pitch;
+                    playerAudioHandler.PlayElevatorSound(inputValue);
                     break;
                 case ControlSurface.R_Flap_1:
                     inputValue = input.Flaps;
@@ -75,6 +84,7 @@ namespace Airplane.ControlSurfaces
                     break;
                 case ControlSurface.Aileron:
                     inputValue = input.Roll;
+                    playerAudioHandler.PlayAelironSound(inputValue);
                     break;
 
                 default:

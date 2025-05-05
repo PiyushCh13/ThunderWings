@@ -1,31 +1,41 @@
+using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 
 
-namespace Airplane.Physics
+namespace Airplane.PlanePhysics
 {
     [RequireComponent(typeof(Rigidbody))]
-    [RequireComponent(typeof(AudioSource))]
     public class AirplaneRigidBodyController : MonoBehaviour
     {
         #region Variables
 
         protected Rigidbody _rigidbodyrb;
-        protected AudioSource _audioSource;
-    
+        public PhotonView photonViewComponent;
+
+        public Vector3 startPosition;
+
+
+
         #endregion
 
         #region Builtin Functions
+
         protected virtual void Start()
         {
             _rigidbodyrb = GetComponent<Rigidbody>();
-            _audioSource = GetComponent<AudioSource>();
+            photonViewComponent = GetComponent<PhotonView>();
 
-            if (_audioSource)
+            if (GameManager.Instance.isMultiplayer)
             {
-                _audioSource.playOnAwake = false;
+                if (photonViewComponent.IsMine)
+                {
+                    startPosition = transform.position;
+                }
             }
+
         }
-    
+
         void FixedUpdate()
         {
             HandlePhysics();
@@ -34,10 +44,10 @@ namespace Airplane.Physics
 
         #region Custom Functions
 
-        public virtual void HandlePhysics(){}
+        public virtual void HandlePhysics() { }
 
         #endregion
-    
+
     }
 }
 

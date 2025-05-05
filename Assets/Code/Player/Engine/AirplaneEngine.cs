@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Airplane.Physics
+namespace Airplane.PlanePhysics
 {
     public class AirplaneEngine : MonoBehaviour
     {

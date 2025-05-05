@@ -1,18 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using Airplane.PlayerControls;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Airplane.Characteristics
 {
-    public class AirplaneCharacteristics : MonoBehaviour 
+    public class AirplaneCharacteristics : MonoBehaviour
     {
         #region Varaibles
-        [FormerlySerializedAs("maxMPH")] [Header("Characteristics Properties")]
+        [FormerlySerializedAs("maxMPH")]
+
+        [Header("Characteristics Properties")]
         public float maxKMPH = 177f;
         public float rbLerpSpeed = 0.01f;
-
 
         [Header("Lift Properties")]
         public float maxLiftPower = 800f;
@@ -35,16 +37,17 @@ namespace Airplane.Characteristics
         private float forwardSpeed;
         public float ForwardSpeed
         {
-            get{return forwardSpeed;}
+            get { return forwardSpeed; }
         }
 
         private float kmph;
         public float KMPH
         {
-            get{return kmph;}
+            get { return kmph; }
         }
 
-        private AirplaneBaseInputController input;
+        private AirplaneInputController input;
+        private PlayerAudioHandler playerAudioHandler;
         private Rigidbody rb;
         private float startDrag;
         private float startAngularDrag;
@@ -56,96 +59,99 @@ namespace Airplane.Characteristics
         private float pitchAngle;
         private float rollAngle;
 
+        public Vector3 velocitySmooth;
+
         private float csEfficiencyValue;
+
+        [Header("Wheel Animation")]
+        public float maxGroundHeight;
+        public float altitude;
+        public LayerMask groundLayer;
+
+        private Animator animator;
+
+        public bool isWheelClosed;
+
+        [Header("VFX")]
+        public TrailRenderer[] wingTrails;
+        public Transform[] thrustObject;
+        public float thrustscaleValue;
+
+        public ParticleSystem[] smokeParticles;
+
         #endregion
-        
+
         #region Constants
         const float mpsToKMph = 3.6f;
         #endregion
 
-        #region Custom Methods
-        public void InitCharacteristics(Rigidbody curRB, AirplaneBaseInputController curInput)
+        void Start()
         {
-            //Basic Initialization
+            animator = GetComponent<Animator>();
+            playerAudioHandler = GetComponent<PlayerAudioHandler>();
+        }
+
+        #region Custom Methods
+
+        public void InitCharacteristics(Rigidbody curRB, AirplaneInputController curInput)
+        {
             input = curInput;
             rb = curRB;
             startDrag = rb.linearDamping;
             startAngularDrag = rb.angularDamping;
 
-            //Find the max Meters Per Second
             maxMPS = maxKMPH / mpsToKMph;
         }
 
-        //Update all the Flight Characteristics methods
         public void UpdateCharacteristics()
         {
-            if(rb)
+            if (rb)
             {
-                //Process the Flight Physics
                 CalculateForwardSpeed();
                 CalculateLift();
                 CalculateDrag();
 
-                //Process Control
                 HandleControlSurfaceEfficiency();
                 HandleYaw();
                 HandlePitch();
                 HandleRoll();
                 HandleBanking();
+                HandleWheelAnimation();
 
-                //Handle Rigidbody
                 HandleRigidbodyTransform();
+                HandleThrustObject();
             }
         }
 
-
-
-        //Get the local forward speed in Meters per second and convert it to Miles Per Hour
         void CalculateForwardSpeed()
         {
-            //Transform the Rigidbody velocity vector from world space to local space
             Vector3 localVelocity = transform.InverseTransformDirection(rb.linearVelocity);
             forwardSpeed = Mathf.Max(0f, localVelocity.z);
-//            forwardSpeed = Mathf.Clamp(forwardSpeed, 0f, maxMPS);
 
-            //find the Miles Per Hour from Meters Per Second
             kmph = forwardSpeed * mpsToKMph;
-//            mph = Mathf.Clamp(mph, 0f, maxMPH);
+
             normalizeKMPH = Mathf.InverseLerp(0f, maxKMPH, kmph);
         }
 
-
-        //Build a lift force strong enough to lift he plane off the ground
         void CalculateLift()
         {
-            //Get the angle of Attack
             angleOfAttack = Vector3.Dot(rb.linearVelocity.normalized, transform.forward);
             angleOfAttack *= angleOfAttack;
 
-            //Create the Lift Direction
             Vector3 liftDir = transform.up;
             float liftPower = liftCurve.Evaluate(normalizeKMPH) * maxLiftPower;
 
-            //Add Flap Lift
             float finalLiftPower = flapLiftPower * input.Flaps;
 
-            //Apply the final Lift Force to the Rigidbody
             Vector3 finalLiftForce = liftDir * (liftPower + finalLiftPower) * angleOfAttack;
             rb.AddForce(finalLiftForce);
         }
-
-
-
-        //Get a Drag force to keep the plane relatively stable in the air
         void CalculateDrag()
         {
-            //Speed Drag
             float speedDrag = forwardSpeed * dragFactor;
 
-            //Flap Drag
             float flapDrag = input.Flaps * flapDragFactor;
 
-            //add it all together!
             float finalDrag = startDrag + speedDrag + flapDrag;
 
             rb.linearDamping = finalDrag;
@@ -155,14 +161,22 @@ namespace Airplane.Characteristics
 
         void HandleRigidbodyTransform()
         {
-            if(rb.linearVelocity.magnitude > 1f)
+            float velocityMagnitude = rb.linearVelocity.magnitude;
+
+            // Only apply this logic if the airplane is flying or moving significantly
+            if (velocityMagnitude > 5f)
             {
-                Vector3 updatedVelocity = Vector3.Lerp(rb.linearVelocity, transform.forward * forwardSpeed, forwardSpeed * angleOfAttack * Time.deltaTime * rbLerpSpeed);
+                Vector3 targetVelocity = transform.forward * forwardSpeed;
+                Vector3 updatedVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, forwardSpeed * angleOfAttack * Time.deltaTime * rbLerpSpeed);
                 rb.linearVelocity = updatedVelocity;
 
-
-                Quaternion updatedRotation = Quaternion.Slerp(rb.rotation, Quaternion.LookRotation(rb.linearVelocity, transform.up), Time.deltaTime * rbLerpSpeed);
-                rb.MoveRotation(updatedRotation);
+                // Avoid LookRotation issues at low speed
+                if (rb.linearVelocity.sqrMagnitude > 0.1f)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(rb.linearVelocity.normalized, transform.up);
+                    Quaternion updatedRotation = Quaternion.Slerp(rb.rotation, targetRotation, Time.deltaTime * rbLerpSpeed);
+                    rb.MoveRotation(updatedRotation);
+                }
             }
         }
 
@@ -174,13 +188,16 @@ namespace Airplane.Characteristics
 
         void HandlePitch()
         {
-            Vector3 flatForward = transform.forward;
-            flatForward.y = 0f;
-            flatForward = flatForward.normalized;
-            pitchAngle = Vector3.Angle(transform.forward, flatForward);
+            if (Mathf.Abs(input.Pitch) > 0.01f)
+            {
+                Vector3 flatForward = transform.forward;
+                flatForward.y = 0f;
+                flatForward = flatForward.normalized;
+                pitchAngle = Vector3.Angle(transform.forward, flatForward);
 
-            Vector3 pitchTorque = input.Pitch * pitchSpeed * transform.right * csEfficiencyValue;
-            rb.AddTorque(pitchTorque);
+                Vector3 pitchTorque = input.Pitch * pitchSpeed * transform.right * csEfficiencyValue;
+                rb.AddTorque(pitchTorque);
+            }
         }
 
         void HandleRoll()
@@ -206,6 +223,45 @@ namespace Airplane.Characteristics
             float bankAmount = Mathf.Lerp(-1f, 1f, bankSide);
             Vector3 bankTorque = bankAmount * bankSpeed * transform.up;
             rb.AddTorque(bankTorque);
+        }
+
+        public void HandleWheelAnimation()
+        {
+            RaycastHit hit;
+
+            if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, groundLayer))
+            {
+                altitude = hit.distance;
+
+                if (hit.distance > maxGroundHeight)
+                {
+                    animator.Play("WheelClose");
+                    playerAudioHandler.PlayLandingGearSound();
+                    isWheelClosed = true;
+                }
+
+                else if (hit.distance < maxGroundHeight && isWheelClosed)
+                {
+                    isWheelClosed = false;
+                    playerAudioHandler.PlayLandingGearSound();
+                    animator.Play("WheelOpen");
+                }
+            }
+        }
+
+        public void HandleThrustObject()
+        {
+            if (thrustObject != null)
+            {
+                float thrustValue = input.StickyThrottle * thrustscaleValue;
+
+                for (int i = 0; i < thrustObject.Length; i++)
+                {
+                    float newXScale = Mathf.Lerp(thrustObject[i].localScale.x, thrustValue, Time.deltaTime * 5f);
+                    thrustObject[i].localScale = new Vector3(newXScale, thrustObject[i].localScale.y, thrustObject[i].localScale.z);
+                }
+
+            }
         }
         #endregion
     }

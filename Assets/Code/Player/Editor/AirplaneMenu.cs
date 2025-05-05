@@ -1,5 +1,5 @@
 
-using Airplane.Physics;
+using Airplane.PlanePhysics;
 using UnityEditor;
 using UnityEngine;
 
