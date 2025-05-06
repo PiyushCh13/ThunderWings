@@ -458,7 +458,7 @@ MonoBehaviour:
   wheelGraphic: {fileID: 0}
   isBrakingWheel: 1
   isSteeringWheel: 0
-  brakeTorqueForce: 0
+  brakeTorqueForce: 40000
 --- !u!1 &1282606266193520371
 GameObject:
   m_ObjectHideFlags: 0
@@ -1535,8 +1535,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wheelGraphic: {fileID: 0}
-  isBrakingWheel: 1
-  isSteeringWheel: 0
+  isBrakingWheel: 0
+  isSteeringWheel: 1
   brakeTorqueForce: 0
 --- !u!1 &2798502723804913780
 GameObject:
@@ -3997,7 +3997,7 @@ MonoBehaviour:
   wheelGraphic: {fileID: 0}
   isBrakingWheel: 1
   isSteeringWheel: 0
-  brakeTorqueForce: 0
+  brakeTorqueForce: 40000
 --- !u!1 &7557840778820110450
 GameObject:
   m_ObjectHideFlags: 0

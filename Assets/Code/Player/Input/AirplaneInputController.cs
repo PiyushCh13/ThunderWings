@@ -102,6 +102,9 @@ namespace Airplane.PlayerControls
 
         public void HandleBrake(InputAction.CallbackContext context)
         {
+
+            Debug.Log("Brake: " + context.performed + " " + context.canceled);
+            
             if (context.performed)
             {
                 _brake = 1;

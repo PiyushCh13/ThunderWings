@@ -20,6 +20,7 @@ public class GameManager : Singleton<GameManager>
 
     [Header("Game Properties")]
     public bool isMultiplayer;
+    public bool isMobile;
 
     [Header("Level Elements")]
     public int totalcheckpointNumber;
@@ -28,6 +29,16 @@ public class GameManager : Singleton<GameManager>
     {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 60;
+
+        if (IsMobile())
+        {
+            isMobile = true;
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        }
+        else
+        {
+            isMobile = false;
+        }
     }
 
     public GameObject SpawnPlayer()
@@ -38,7 +49,7 @@ public class GameManager : Singleton<GameManager>
         return playerInstance;
     }
 
-#region SinglePlayerFunctions
+    #region SinglePlayerFunctions
 
     public IEnumerator SetupPlayerInstantiation(Transform[] spawnPoints)
     {
@@ -68,8 +79,36 @@ public class GameManager : Singleton<GameManager>
         Destroy(explosion);
         Destroy(player);
     }
-#endregion
-#region MultiPlayerFunctions
+    #endregion
+    #region MultiPlayerFunctions
 
-#endregion
+    #region MobileCheck
+    bool IsMobile()
+    {
+#if UNITY_ANDROID || UNITY_IOS
+        return true;
+#elif UNITY_WEBGL
+        return IsMobileWebGL();
+#else
+        return false;
+#endif
+    }
+
+bool IsMobileWebGL()
+{
+#if UNITY_WEBGL && !UNITY_EDITOR
+    return DetectMobileDevice();
+#else
+    return false;
+#endif
+}
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [System.Runtime.InteropServices.DllImport("__Internal")]
+    private static extern bool DetectMobileDevice();
+#endif
+
+    #endregion
+
+    #endregion
 }

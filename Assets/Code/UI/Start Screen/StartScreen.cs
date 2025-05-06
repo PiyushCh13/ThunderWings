@@ -13,13 +13,15 @@ public class StartScreen : MonoBehaviour
     public GameObject playerButtons;
     public GameObject playerNameWindow;
 
+    public GameObject playerControlField;
+
     public TMP_Text playerNameDisplayText;
 
     void Start()
     {
         MusicManager.Instance.PlayMusic();
 
-        if (string.IsNullOrEmpty(GameManager.Instance.playerName) || PlayerPrefs.HasKey("PlayerName"))
+        if (PlayerPrefs.HasKey("PlayerName"))
         {
             GameManager.Instance.playerName = PlayerPrefs.GetString("PlayerName", "");
             playerNameDisplayText.gameObject.SetActive(true);
@@ -27,6 +29,7 @@ public class StartScreen : MonoBehaviour
             playerNameDisplayText.text = GameManager.Instance.playerName;
             playerNameWindow.SetActive(false);
             playerButtons.SetActive(true);
+            playerControlField.SetActive(false);
         }
 
         else
@@ -34,7 +37,8 @@ public class StartScreen : MonoBehaviour
             GameManager.Instance.playerName = "";
             playerNameWindow.SetActive(true);
             playerButtons.SetActive(false);
-            playerNameDisplayText.gameObject.SetActive(false);
+            playerNameDisplayText.gameObject.SetActive(true);
+            playerControlField.SetActive(false);
         }
     }
 
@@ -76,6 +80,20 @@ public class StartScreen : MonoBehaviour
         playerNameWindow.SetActive(true);
         playerButtons.SetActive(false);
         playerNameDisplayText.gameObject.SetActive(false);
+    }
+
+    public void OpenControlField()
+    {
+        SFXManager.Instance.PlaySound(SFXManager.Instance.buttonClick);
+        playerButtons.SetActive(false);
+        playerControlField.SetActive(true);
+    }
+
+        public void CloseControlField()
+    {
+        SFXManager.Instance.PlaySound(SFXManager.Instance.buttonClick);
+        playerButtons.SetActive(true);
+        playerControlField.SetActive(false);
     }
 
     public void QuitGame()

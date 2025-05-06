@@ -48,7 +48,7 @@ public class GameSceneUI : MonoBehaviour
         if (airplaneInputController == null && airplaneCharacteristics == null)
             return;
 
-        throttle.text = $"Throttle: {Mathf.RoundToInt(airplaneInputController.Throttle * 100)}%";
+        throttle.text = $"Throttle: {Mathf.RoundToInt(airplaneInputController.StickyThrottle * 100)}%";
 
         if (airplaneCharacteristics.KMPH > 1f)
         {

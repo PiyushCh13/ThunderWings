@@ -289,9 +289,9 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "negative",
-                    "id": "823261cb-7af8-4f58-bfbd-68ade7bda216",
-                    "path": "<Gamepad>/leftTrigger",
+                    "name": "positive",
+                    "id": "5d54a78a-c762-4e98-a42c-4b8b51eee9af",
+                    "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -300,9 +300,9 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "positive",
-                    "id": "5d54a78a-c762-4e98-a42c-4b8b51eee9af",
-                    "path": "<Gamepad>/rightTrigger",
+                    "name": "negative",
+                    "id": "823261cb-7af8-4f58-bfbd-68ade7bda216",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

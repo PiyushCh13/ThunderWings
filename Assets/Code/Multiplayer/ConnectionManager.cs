@@ -49,19 +49,11 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        if(!PhotonNetwork.InRoom)
-        {
-            PhotonNetwork.JoinRandomRoom();
-        }
-    }
-
-    public override void OnJoinRandomFailed(short returnCode, string message)
-    {
         if (!PhotonNetwork.InRoom)
         {
-            string roomName = "Room_" + UnityEngine.Random.Range(1000, 9999);
+            string roomName = "MatchRoom";
             RoomOptions options = new RoomOptions { MaxPlayers = 2, CleanupCacheOnLeave = true };
-            PhotonNetwork.CreateRoom(roomName, options);
+            PhotonNetwork.JoinOrCreateRoom(roomName, options, TypedLobby.Default);
         }
     }
 
@@ -129,8 +121,8 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
         {
             yield return null;
         }
-        
-        
+
+
         SceneManager.LoadScene(mainMenuSceneName);
     }
 

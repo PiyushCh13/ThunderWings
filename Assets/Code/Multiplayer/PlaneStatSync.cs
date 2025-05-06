@@ -19,13 +19,18 @@ public class PlaneStatSync : MonoBehaviourPun, IPunObservable
 
     void Awake()
     {
-        inputController = GetComponent<AirplaneInputController>();
-        characteristics = GetComponent<AirplaneCharacteristics>();
-        checkpointManager = FindFirstObjectByType<CheckpointManager>();
+        if (GameManager.Instance.isMultiplayer)
+        {
+            inputController = GetComponent<AirplaneInputController>();
+            characteristics = GetComponent<AirplaneCharacteristics>();
+            checkpointManager = FindFirstObjectByType<CheckpointManager>();
+        }
     }
 
     void Update()
     {
+        if (!GameManager.Instance.isMultiplayer) return;
+        
         if (photonView.IsMine)
         {
             throttle = inputController.StickyThrottle;
@@ -38,6 +43,8 @@ public class PlaneStatSync : MonoBehaviourPun, IPunObservable
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
+        if (!GameManager.Instance.isMultiplayer) return;
+        
         if (stream.IsWriting)
         {
             stream.SendNext(throttle);

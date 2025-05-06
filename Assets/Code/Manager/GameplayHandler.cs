@@ -13,6 +13,9 @@ public class GameplayHandler : MonoBehaviourPun
     [Header("Components")]
     private BaseCameraFollow cameraFollow;
 
+    [Header("Mobile Controls")]
+    public GameObject mobileControlsPrefab;
+
     void Start()
     {
         cameraFollow = Camera.main.GetComponent<BaseCameraFollow>();
@@ -24,6 +27,11 @@ public class GameplayHandler : MonoBehaviourPun
             GameObject player = GameManager.Instance.SpawnPlayer();
             player.transform.SetParent(singlePlayerParent.transform, false);
             cameraFollow.target = player.transform;
+        }
+
+        if(GameManager.Instance.isMobile)
+        {
+            mobileControlsPrefab.gameObject.SetActive(true);
         }
     }
 }
